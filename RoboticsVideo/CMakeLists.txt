@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 2.8)
+project( Video )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+add_executable( Video Video.cpp )
+target_link_libraries( Video ${OpenCV_LIBS} )
