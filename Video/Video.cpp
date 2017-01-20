@@ -13,28 +13,26 @@
 using namespace cv;
 using namespace std;
 
-// Values to be posted to Network Tables
-
+// Values to be sent over network
 // See if the target is the boiler, lift, or neither; 1 = boiler 2 = lift 3 = neither
 int targetType = 0;
 
 int frameIndex = 0;
 
-double bigTargetX = 0;
-double bigTargetY = 0;
-double bigTargetWidth = 0;
-double bigTargetHeight = 0;
+int bigTargetX = 0;
+int bigTargetY = 0;
+int bigTargetWidth = 0;
+int bigTargetHeight = 0;
 
-double smallTargetX = 0;
-double smallTargetY = 0;
-double smallTargetWidth = 0;
-double smallTargetHeight = 0;
+int smallTargetX = 0;
+int smallTargetY = 0;
+int smallTargetWidth = 0;
+int smallTargetHeight = 0;
 
-double liftX = 0;
+int liftX = 0;
 
-double bigTargetXDec = 0.0;
-double bigTargetYDec = 0.0;
-double bigTargetHeightDec = 0.0;
+// Constant value to verify data structures are the same on both this side (client side) and the server side
+int STRUCT_VERSION = 0;
 
 // Serializes target attributes by broadcasting UDP packets
 void serialize() {
@@ -67,19 +65,13 @@ void serialize() {
             bigTargetX = liftX;
         }
         
-        bigTargetXDec = (bigTargetX - (int)bigTargetX) * 10;
-        bigTargetYDec = (bigTargetY - (int)bigTargetY) * 10;
-        bigTargetHeightDec = (bigTargetHeight - (int)bigTargetHeight) * 10;
-        
         // Data structure that contains the values to be sent to server (roborio) via UDP packet
         struct targetInformation {
             short frameNum = htons(frameIndex);
-            short targetXInt = htons((short)bigTargetX);
-            short targetYInt = htons((short)bigTargetY);
-            short targetHeightInt = htons((short)bigTargetHeight);
-            short targetXDecimal = htons((short)bigTargetXDec);
-            short targetYDecimal = htons((short)bigTargetYDec);
-            short targetHeightDecimal = htons((short)bigTargetHeightDec);
+            short targetX = htons((short)bigTargetX);
+            short targetY = htons((short)bigTargetY);
+            short targetHeight = htons((short)bigTargetHeight);
+            short dataStructVersion = htons((short)STRUCT_VERSION);
             char targetNum = (char)targetType;
         } values;
         
@@ -125,16 +117,6 @@ int main() {
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
     
-    // Variables used to identify largest contours
-    int largestArea = 0;
-    int secondLargestArea = 0;
-    int largestContourIndex = 0;
-    int secondLargestContourIndex = 0;
-    
-    // Rectangles that will be wrapped around the pieces of reflective tape
-    Rect largestTapeRect;
-    Rect secondLargestTapeRect;
-    
     // Write only file storage system for outputs.xml file, where matrices containing images will be stored
     FileStorage fileStorage("outputs.xml", FileStorage::WRITE);
     
@@ -160,6 +142,16 @@ int main() {
         
         //Finds the contours on the contour image
         findContours(contourImg, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+        
+        // Variables used to identify largest contours
+        int largestArea = 0;
+        int secondLargestArea = 0;
+        int largestContourIndex = 0;
+        int secondLargestContourIndex = 0;
+        
+        // Rectangles that will be wrapped around the pieces of reflective tape
+        Rect largestTapeRect;
+        Rect secondLargestTapeRect;
         
         // Finds largest contour; makes largestTapeRect only wrap around the largest contour (target)
         for (int contourIndex = 0; contourIndex < contours.size(); contourIndex++) {
