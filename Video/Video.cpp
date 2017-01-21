@@ -288,8 +288,10 @@ int main() {
         frameIndex++;
         
         // Breaks the loop to end the program if the next image does not exist
-        if (waitKey(30) >= 0)
+        if (((char) waitKey(30)) >= 0)
+        {
             break;
+    }
     }
     
     // Releases (ends) the file storage system
