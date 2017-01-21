@@ -136,8 +136,8 @@ int main() {
 //    Scalar MAXCOLOR = Scalar(78, 255, 255);
     
     // Test scalar constants for program to detect more than just the reflective tape (H, S, V)
-     Scalar MINCOLOR = Scalar(20, 20, 20);
-     Scalar MAXCOLOR = Scalar(180, 255, 255);
+    Scalar MINCOLOR = Scalar(20, 20, 20);
+    Scalar MAXCOLOR = Scalar(180, 255, 255);
     
     // Image to draw contours on
     Mat contourImg;
@@ -165,9 +165,9 @@ int main() {
     int MAX_RATIO = 1000;
     
     // Write only file storage system for outputs.xml file, where matrices containing images will be stored
-    FileStorage fileStorage("outputs.xml", FileStorage::WRITE);
+//    FileStorage fileStorage("outputs.xml", FileStorage::WRITE);
     
-    int frameStorageIndex = 0;
+//    int frameStorageIndex = 0;
     
     // Displays video feed and writes every tenth frame to outputs.xml
     while (true) {
@@ -280,12 +280,12 @@ int main() {
         imshow("outputImage", outputImg);
         
         // Writes every tenth frame that the window is showing to outputs.xml file
-        if (frameIndex % 10 == 0) {
-            stringstream name;
-            name << "outputImage" << frameStorageIndex;
-            fileStorage << name.str() << outputImg;
-            frameStorageIndex++;
-        }
+//        if (frameIndex % 10 == 0) {
+//            stringstream name;
+//            name << "outputImage" << frameStorageIndex;
+//            fileStorage << name.str() << outputImg;
+//            frameStorageIndex++;
+//        }
         
         serialize();
         
@@ -299,7 +299,7 @@ int main() {
     }
     
     // Releases (ends) the file storage system
-    fileStorage.release();
+//    fileStorage.release();
     
     return 0;
 }
