@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 using namespace cv;
 using namespace std;
@@ -31,21 +32,24 @@ int smallTargetHeight = 0;
 
 int liftX = 0;
 
+// Data structures to hold host information and the server information
+
+const char *host = "roboRIO-3824-FRC.local";    // Insert roborio name here
+struct hostent *hp;
+struct sockaddr_in servaddr;
+int fd;
+
 // Constant value to verify data structures are the same on both this side (client side) and the server side
 int STRUCT_VERSION = 0;
 
-// Serializes target attributes by broadcasting UDP packets
-void serialize() {
-    
-    // Insert roborio name here
-    const char *host = "roboRIO-3824-FRC.local";
-    
-    // Data structures to hold host information and the server information
-    struct hostent *hp;
-    struct sockaddr_in servaddr;
+void destructNetwork() {
+    close(fd);
+}
+
+void initNetwork() {
     
     // Creates socket object and see if socket can be created
-    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (fd < 0) {
         perror("cannot create socket");
     }
@@ -57,6 +61,15 @@ void serialize() {
     
     // Look up the address of the server given its name
     hp = gethostbyname(host);
+    if (!hp) {
+        destructNetwork();
+        fprintf(stderr, "could not obtain address of %s\n", host);
+    }
+}
+
+// Serializes target attributes by broadcasting UDP packets
+void serialize() {
+    
     if (!hp) {
         fprintf(stderr, "could not obtain address of %s\n", host);
     } else {
@@ -95,6 +108,8 @@ int main() {
         cout << "cannot open camera";
         return 1;
     }
+    
+    initNetwork();
     
     // Raw image from camera
     Mat cameraFrameImage;
