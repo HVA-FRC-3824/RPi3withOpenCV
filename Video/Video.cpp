@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <netinet/in.h>
 
 using namespace cv;
 using namespace std;
@@ -66,6 +67,9 @@ void initNetwork() {
         destructNetwork();
         fprintf(stderr, "could not obtain address of %s\n", host);
     }
+    
+    // Put the host's address into the server address structure
+    memcpy((void *)&servaddr.sin_addr, hp->h_addr_list[0], hp->h_length);
 }
 
 void dump_buf(unsigned char *buf, int len)
@@ -99,9 +103,6 @@ void serialize() {
             unsigned short targetY = htons((unsigned short)bigTargetY);
             unsigned short targetHeight = htons((short)bigTargetHeight);
         } values;
-        
-        // Put the host's address into the server address structure
-        memcpy((void *)&servaddr.sin_addr, hp->h_addr_list[0], hp->h_length);
         
 #if (DO_TRACES == 1)
         dump_buf((unsigned char *) &values, sizeof(values));
