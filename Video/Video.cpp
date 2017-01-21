@@ -90,13 +90,13 @@ void serialize() {
         }
         
         // Data structure that contains the values to be sent to server (roborio) via UDP packet
-        struct targetInformation {
-            short frameNum = htons(frameIndex);
-            short targetX = htons((short)bigTargetX);
-            short targetY = htons((short)bigTargetY);
-            short targetHeight = htons((short)bigTargetHeight);
-            short dataStructVersion = htons((short)STRUCT_VERSION);
-            char targetNum = (char)targetType;
+        struct __attribute__((packed)) targetInformation {
+            unsigned char  dataStructVersion = (unsigned char) STRUCT_VERSION;
+            unsigned char  targetNum = (unsigned char) targetType;
+            unsigned short frameNum = htons((unsigned short) frameIndex);
+            unsigned short targetX = htons((unsigned short)bigTargetX);
+            unsigned short targetY = htons((unsigned short)bigTargetY);
+            unsigned short targetHeight = htons((short)bigTargetHeight);
         } values;
         
         // Put the host's address into the server address structure
