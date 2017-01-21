@@ -67,6 +67,17 @@ void initNetwork() {
     }
 }
 
+void dump_buf(unsigned char *buf, int len)
+{
+    unsigned char *b = buf;
+    for (int i=0; i<len; i++)
+    {
+        printf("%02X ", *b++);
+    }
+    
+    printf("\n");
+}
+
 // Serializes target attributes by broadcasting UDP packets
 void serialize() {
     
@@ -90,6 +101,8 @@ void serialize() {
         
         // Put the host's address into the server address structure
         memcpy((void *)&servaddr.sin_addr, hp->h_addr_list[0], hp->h_length);
+        
+        dump_buf((unsigned char *) &values, sizeof(values));
         
         // Sends the frame number, target type (lift or boiler), target x coordinate, target y coordinate, and target height to the server (roborio)
         if (sendto(fd, &values, sizeof(values), 0, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
