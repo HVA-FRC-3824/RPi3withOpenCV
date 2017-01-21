@@ -32,6 +32,7 @@ int smallTargetHeight = 0;
 
 int liftX = 0;
 
+#define DO_TRACES 0
 // Data structures to hold host information and the server information
 
 const char *host = "roboRIO-3824-FRC.local";    // Insert roborio name here
@@ -102,7 +103,9 @@ void serialize() {
         // Put the host's address into the server address structure
         memcpy((void *)&servaddr.sin_addr, hp->h_addr_list[0], hp->h_length);
         
+#if (DO_TRACES == 1)
         dump_buf((unsigned char *) &values, sizeof(values));
+#endif
         
         // Sends the frame number, target type (lift or boiler), target x coordinate, target y coordinate, and target height to the server (roborio)
         if (sendto(fd, &values, sizeof(values), 0, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
@@ -291,7 +294,7 @@ int main() {
         if (((char) waitKey(30)) >= 0)
         {
             break;
-    }
+        }
     }
     
     // Releases (ends) the file storage system
