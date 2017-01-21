@@ -113,9 +113,24 @@ int main() {
     // Image to display in window
     Mat outputImg;
     
-    // Vector holding contours
-    vector<vector<Point> > contours;
+    // Vectors holding contour and contour attributes
+    vector<vector<Point> > inputContours;
+    vector<vector<Point> > outputContours;
     vector<Vec4i> hierarchy;
+    vector<Point> hull;
+    
+    int MIN_CONTOUR_WIDTH = 100;
+    int MAX_CONTOUR_WIDTH = 1000;
+    int MIN_CONTOUR_HEIGHT = 100;
+    int MAX_CONTOUR_HEIGHT = 1000;
+    int MIN_CONTOUR_AREA = 100;
+    int MIN_CONTOUR_PERIMETER = 100;
+    int MIN_SOLIDITY = 0;
+    int MAX_SOLIDITY = 100;
+    int MIN_VERTEX_COUNT = 0;
+    int MAX_VERTEX_COUNT = 1000000;
+    int MIN_RATIO = 0;
+    int MAX_RATIO = 1000;
     
     // Write only file storage system for outputs.xml file, where matrices containing images will be stored
     FileStorage fileStorage("outputs.xml", FileStorage::WRITE);
@@ -139,9 +154,37 @@ int main() {
         // Makes the contour image only show elements that are in between the specified HSV min and max constants
         inRange(cameraFrameImage, MINCOLOR, MAXCOLOR, contourImg);
         
-        
         //Finds the contours on the contour image
-        findContours(contourImg, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+        findContours(contourImg, inputContours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+        
+        outputContours.clear();
+        
+        for (vector<Point> contour: inputContours) {
+            Rect bb = boundingRect(contour);
+            if (bb.width > MIN_CONTOUR_WIDTH && bb.width < MAX_CONTOUR_WIDTH) {
+                if (bb.height > MIN_CONTOUR_HEIGHT && bb.height < MAX_CONTOUR_HEIGHT) {
+                    double area = contourArea(contour);
+                    if (area > MIN_CONTOUR_AREA) {
+                        if (arcLength(contour, true) > MIN_CONTOUR_PERIMETER) {
+                            convexHull(Mat(contour, true), hull);
+                            double solid = 100 * area / contourArea(hull);
+                            if (solid > MIN_SOLIDITY && solid < MAX_SOLIDITY) {
+                                if (contour.size() > MIN_VERTEX_COUNT && contour.size() < MAX_VERTEX_COUNT)	{
+                                double ratio = bb.width / bb.height;
+                                    if (ratio > MIN_RATIO && ratio < MAX_RATIO) {
+                                        outputContours.push_back(contour);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        for (int outputContourIndex = 0; outputContourIndex < outputContours.size(); outputContourIndex++) {
+            drawContours(contourImg, outputContours, outputContourIndex, CV_RGB(255, 255, 255), 2, 8, hierarchy, 0, Point() );
+        }
         
         // Variables used to identify largest contours
         int largestArea = 0;
@@ -154,16 +197,16 @@ int main() {
         Rect secondLargestTapeRect;
         
         // Finds largest contour; makes largestTapeRect only wrap around the largest contour (target)
-        for (int contourIndex = 0; contourIndex < contours.size(); contourIndex++) {
-            double a = contourArea(contours[contourIndex], false);
+        for (int contourIndex = 0; contourIndex < outputContours.size(); contourIndex++) {
+            double a = contourArea(outputContours[contourIndex], false);
             if (a > largestArea){
                 largestArea = a;
                 largestContourIndex = contourIndex;
-                largestTapeRect = boundingRect( Mat(contours[contourIndex]) );
+                largestTapeRect = boundingRect( Mat(outputContours[contourIndex]) );
             } else if (a < largestArea && a > secondLargestArea) {
                 secondLargestArea = a;
                 secondLargestContourIndex = contourIndex;
-                secondLargestTapeRect = boundingRect( Mat(contours[contourIndex]) );
+                secondLargestTapeRect = boundingRect( Mat(outputContours[contourIndex]) );
             }
         }
         
@@ -185,7 +228,12 @@ int main() {
         // Dectect to see if the strips of reflective tape are for the boiler or the lift
         double expectedBoilerProportion = 2.0;
         double expectedLiftProportion = 1.0;
-        double actualProportion = bigTargetHeight/smallTargetHeight;
+        double actualProportion;
+        
+        if (smallTargetX != 0) {
+            actualProportion = bigTargetHeight/smallTargetHeight;
+        }
+        
         double deviationFromExpectedBoilerProportion = expectedBoilerProportion - actualProportion;
         double deviationFromExpectedLiftProportion = expectedLiftProportion - actualProportion;
         
