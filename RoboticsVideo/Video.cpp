@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <signal.h>
 
 using namespace cv;
 using namespace std;
@@ -47,6 +48,12 @@ int fd;
 
 // Constant value to verify data structures are the same on both this side (client side) and the server side
 int STRUCT_VERSION = 0;
+
+void sig_handler(int signo)
+{
+    cout << "received signal\n";
+}
+
 
 void destructNetwork() {
     close(fd);
@@ -125,26 +132,33 @@ void serialize() {
 
 int main() {
     char headless;
+    char *pDisplay;
 
     // Creates an object that can capture video from web cam
+    cout << "Creating capture stream\n";
     VideoCapture stream1(0);
     
     // If the video stream cannot be opened, tell user
     if (!stream1.isOpened()) {
-        cout << "cannot open camera";
+        cout << "cannot open camera\n";
         return 1;
     }
 
     // determine if we're running headless or not
-    try
+    cout << "Attempting to open an output window\n";
+    pDisplay = getenv("DISPLAY");
+    if(pDisplay != NULL)
     {
-	namedWindow("outputImage");
+	
+	cout << "Running with windowing environment\n";
         headless = FALSE;
     }
-    catch(...)
+    else
     {
+	cout << "Running HEADLESS\n";
         headless = TRUE;
     }
+    cout << "headless test complete\n";
 
     //stream1.VideoCapture::set(CV_CAP_PROP_BRIGHTNESS, 30);
     //stream1.VideoCapture::set(CV_CAP_PROP_CONTRAST, 10);
