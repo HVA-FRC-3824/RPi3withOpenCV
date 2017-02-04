@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/Users/BRYSON_GULLETT/Documents/OpenCVApps/RoboticsVideo/Video.cpp
+/home/pi/RPi3withOpenCV/RoboticsVideo/Video.cpp
 opencv2/highgui/highgui.hpp
 -
 opencv2/imgproc/imgproc.hpp
@@ -28,6 +28,10 @@ netdb.h
 sys/socket.h
 -
 arpa/inet.h
+-
+unistd.h
+-
+netinet/in.h
 -
 
 /usr/local/include/opencv/cxcore.h
@@ -483,4 +487,14 @@ opencv2/opencv.hpp
 /usr/local/include/opencv2/videoio/videoio_c.h
 opencv2/core/core_c.h
 /usr/local/include/opencv2/videoio/opencv2/core/core_c.h
+
+/usr/local/include/opencv2/xfeatures2d.hpp
+opencv2/features2d.hpp
+/usr/local/include/opencv2/opencv2/features2d.hpp
+opencv2/xfeatures2d/nonfree.hpp
+/usr/local/include/opencv2/opencv2/xfeatures2d/nonfree.hpp
+
+/usr/local/include/opencv2/xfeatures2d/nonfree.hpp
+opencv2/features2d.hpp
+/usr/local/include/opencv2/xfeatures2d/opencv2/features2d.hpp
 

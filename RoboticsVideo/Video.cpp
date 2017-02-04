@@ -33,6 +33,7 @@ int smallTargetHeight = 0;
 
 int liftX = 0;
 
+
 #define DO_TRACES 0
 // Data structures to hold host information and the server information
 
@@ -50,6 +51,8 @@ void destructNetwork() {
 
 void initNetwork() {
     
+    hp = NULL;
+
     // Creates socket object and see if socket can be created
     fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (fd < 0) {
@@ -62,10 +65,12 @@ void initNetwork() {
     servaddr.sin_port = htons(5800);
     
     // Look up the address of the server given its name
-    hp = gethostbyname(host);
-    if (!hp) {
-        destructNetwork();
-        fprintf(stderr, "could not obtain address of %s\n", host);
+    while(!hp)
+    {
+        hp = gethostbyname(host);
+        if (!hp) {
+            fprintf(stderr, "could not obtain address of %s\n", host);
+        }
     }
     
     // Put the host's address into the server address structure
@@ -125,6 +130,16 @@ int main() {
         cout << "cannot open camera";
         return 1;
     }
+
+    //stream1.VideoCapture::set(CV_CAP_PROP_BRIGHTNESS, 30);
+    //stream1.VideoCapture::set(CV_CAP_PROP_CONTRAST, 10);
+    // Auto exposure = 1/manual mode Options: Aperature Priority or Manual
+    // Absolute exposure = 5 Range: 5 to 20000
+    // Saturation = 200 Range: 0 to 200
+    // White balance temperature auto = false/0 Options: true or false
+    // Sharpness = 50 Range: 0 to 50
+    // Contrast = 10 Range: 0 to 10
+    // White balance temperature = 6500 Range: 2800 to 10000
     
     initNetwork();
     
@@ -132,12 +147,12 @@ int main() {
     Mat cameraFrameImage;
     
     // Default scalar constants for program to only detect reflective tape (H, S, V)
-//    Scalar MINCOLOR = Scalar(49, 128, 76);
-//    Scalar MAXCOLOR = Scalar(78, 255, 255);
+    Scalar MINCOLOR = Scalar(30, 150, 60);
+    Scalar MAXCOLOR = Scalar(90, 255, 255);
     
     // Test scalar constants for program to detect more than just the reflective tape (H, S, V)
-    Scalar MINCOLOR = Scalar(20, 20, 20);
-    Scalar MAXCOLOR = Scalar(180, 255, 255);
+//    Scalar MINCOLOR = Scalar(20, 20, 20);
+//    Scalar MAXCOLOR = Scalar(180, 255, 255);
     
     // Image to draw contours on
     Mat contourImg;
@@ -151,12 +166,12 @@ int main() {
     vector<Vec4i> hierarchy;
     vector<Point> hull;
     
-    int MIN_CONTOUR_WIDTH = 100;
+    int MIN_CONTOUR_WIDTH = 0;
     int MAX_CONTOUR_WIDTH = 1000;
-    int MIN_CONTOUR_HEIGHT = 100;
+    int MIN_CONTOUR_HEIGHT = 0;
     int MAX_CONTOUR_HEIGHT = 1000;
-    int MIN_CONTOUR_AREA = 100;
-    int MIN_CONTOUR_PERIMETER = 100;
+    int MIN_CONTOUR_AREA = 50;
+    int MIN_CONTOUR_PERIMETER = 50;
     int MIN_SOLIDITY = 0;
     int MAX_SOLIDITY = 100;
     int MIN_VERTEX_COUNT = 0;
@@ -168,6 +183,7 @@ int main() {
 //    FileStorage fileStorage("outputs.xml", FileStorage::WRITE);
     
 //    int frameStorageIndex = 0;
+
     
     // Displays video feed and writes every tenth frame to outputs.xml
     while (true) {
@@ -252,32 +268,36 @@ int main() {
         bigTargetWidth = largestTapeRect.width;
         bigTargetHeight = largestTapeRect.height;
         
-        smallTargetX = largestTapeRect.x;
-        smallTargetY = largestTapeRect.y;
-        smallTargetWidth = largestTapeRect.width;
-        smallTargetHeight = largestTapeRect.height;
+        smallTargetX = secondLargestTapeRect.x;
+        smallTargetY = secondLargestTapeRect.y;
+        smallTargetWidth = secondLargestTapeRect.width;
+        smallTargetHeight = secondLargestTapeRect.height;
         
         // Dectect to see if the strips of reflective tape are for the boiler or the lift
         double expectedBoilerProportion = 2.0;
         double expectedLiftProportion = 1.0;
-        double actualProportion;
+        double actualProportion = 0;
         
-        if (smallTargetX != 0) {
-            actualProportion = bigTargetHeight/smallTargetHeight;
+        if (smallTargetHeight != 0) {
+            actualProportion = (double)bigTargetHeight/(double)smallTargetHeight;
         }
         
         double deviationFromExpectedBoilerProportion = expectedBoilerProportion - actualProportion;
         double deviationFromExpectedLiftProportion = expectedLiftProportion - actualProportion;
         
+	targetType = 0;
+	
         if (deviationFromExpectedBoilerProportion > -0.1 && deviationFromExpectedBoilerProportion < 0.1) {
             targetType = 1;
         } else if (deviationFromExpectedLiftProportion > -0.1 && deviationFromExpectedLiftProportion < 0.1) {
             targetType = 2;
             liftX = (bigTargetX + smallTargetX) / 2;
-        }
-        
+        } else {
+	    targetType = 0;
+	}
+
         // Displays each image in window
-        imshow("outputImage", outputImg);
+//        imshow("outputImage", outputImg);
         
         // Writes every tenth frame that the window is showing to outputs.xml file
 //        if (frameIndex % 10 == 0) {
@@ -292,10 +312,7 @@ int main() {
         frameIndex++;
         
         // Breaks the loop to end the program if the next image does not exist
-        if (((char) waitKey(30)) >= 0)
-        {
-            break;
-        }
+        waitKey(30);
     }
     
     // Releases (ends) the file storage system
