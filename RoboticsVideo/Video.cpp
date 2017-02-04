@@ -37,6 +37,8 @@ int smallTargetHeight = 0;
 
 int liftX = 0;
 
+short frameWidth;
+short frameHeight;
 
 #define DO_TRACES 0
 // Data structures to hold host information and the server information
@@ -117,6 +119,8 @@ void serialize() {
             unsigned short targetX = htons((unsigned short)bigTargetX);
             unsigned short targetY = htons((unsigned short)bigTargetY);
             unsigned short targetHeight = htons((short)bigTargetHeight);
+            unsigned short width = htons((short) frameWidth);
+            unsigned short height = htons((short) frameHeight);
         } values;
         
 #if (DO_TRACES == 1)
@@ -213,7 +217,16 @@ int main() {
     
 //    int frameStorageIndex = 0;
 
+    //----------------------------------
+    // Get one frame from the camera so we can get information about the frame
+    // that only needs to be retrieved one time
+    stream1.read(cameraFrameImage);
     
+    // Get the frame size
+    frameWidth = (short) stream1.get(CV_CAP_PROP_FRAME_WIDTH);
+    frameHeight = (short) stream1.get(CV_CAP_PROP_FRAME_HEIGHT);
+    
+    //----------------------------------
     // Displays video feed and writes every tenth frame to outputs.xml
     while (true) {
         // Latest image from video feed
