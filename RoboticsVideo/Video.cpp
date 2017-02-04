@@ -15,6 +15,9 @@
 using namespace cv;
 using namespace std;
 
+#define TRUE (1)
+#define FALSE (!TRUE)
+
 // Values to be sent over network
 // See if the target is the boiler, lift, or neither; 1 = boiler 2 = lift 3 = neither
 int targetType = 0;
@@ -121,7 +124,8 @@ void serialize() {
 }
 
 int main() {
-    
+    char headless;
+
     // Creates an object that can capture video from web cam
     VideoCapture stream1(0);
     
@@ -129,6 +133,17 @@ int main() {
     if (!stream1.isOpened()) {
         cout << "cannot open camera";
         return 1;
+    }
+
+    // determine if we're running headless or not
+    try
+    {
+	namedWindow("outputImage");
+        headless = FALSE;
+    }
+    catch(...)
+    {
+        headless = TRUE;
     }
 
     //stream1.VideoCapture::set(CV_CAP_PROP_BRIGHTNESS, 30);
@@ -296,8 +311,11 @@ int main() {
 	    targetType = 0;
 	}
 
-        // Displays each image in window
-//        imshow("outputImage", outputImg);
+        // If we're running with windowing system active, displays each image in window
+	if(!headless)
+	{
+            imshow("outputImage", outputImg);
+	}
         
         // Writes every tenth frame that the window is showing to outputs.xml file
 //        if (frameIndex % 10 == 0) {
@@ -314,8 +332,7 @@ int main() {
         // Breaks the loop to end the program if the next image does not exist
         waitKey(30);
     }
-    
-    // Releases (ends) the file storage system
+
 //    fileStorage.release();
     
     return 0;
