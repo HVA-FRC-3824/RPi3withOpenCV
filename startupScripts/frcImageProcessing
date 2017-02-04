@@ -1,0 +1,29 @@
+#! /bin/sh
+# /etc/init.d/frcImageProcessing
+
+### BEGIN INIT INFO
+# Provides:          frcImageProcessing
+# Required-Start:    $syslog $local_fs $network $named
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     1 3 5
+# Default-Stop:      0 2 4 6
+# Short-Description: Run frcImageProcessing
+# Description:       Runs the FRC video vision processing program
+### END INIT INFO
+
+case "$1" in
+  start)
+    echo "Starting frcImageProcessing"
+    /usr/local/bin/startProcessing.sh &
+    ;;
+  stop)
+    echo "Stopping frcImageProcessing"
+    killall frcImageProcessing &
+    ;;
+  *)
+    echo "Usage: /etc/init.d/frcImageProcessing {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
