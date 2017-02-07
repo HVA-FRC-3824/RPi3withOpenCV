@@ -163,16 +163,6 @@ int main() {
         headless = TRUE;
     }
     cout << "headless test complete\n";
-
-    //stream1.VideoCapture::set(CV_CAP_PROP_BRIGHTNESS, 30);
-    //stream1.VideoCapture::set(CV_CAP_PROP_CONTRAST, 10);
-    // Auto exposure = 1/manual mode Options: Aperature Priority or Manual
-    // Absolute exposure = 5 Range: 5 to 20000
-    // Saturation = 200 Range: 0 to 200
-    // White balance temperature auto = false/0 Options: true or false
-    // Sharpness = 50 Range: 0 to 50
-    // Contrast = 10 Range: 0 to 10
-    // White balance temperature = 6500 Range: 2800 to 10000
     
     initNetwork();
     
@@ -180,8 +170,8 @@ int main() {
     Mat cameraFrameImage;
     
     // Default scalar constants for program to only detect reflective tape (H, S, V)
-    Scalar MINCOLOR = Scalar(30, 150, 60);
-    Scalar MAXCOLOR = Scalar(90, 255, 255);
+    Scalar MINCOLOR = Scalar(50, 100, 60);
+    Scalar MAXCOLOR = Scalar(100, 255, 255);
     
     // Test scalar constants for program to detect more than just the reflective tape (H, S, V)
 //    Scalar MINCOLOR = Scalar(20, 20, 20);
@@ -200,18 +190,18 @@ int main() {
     vector<Point> hull;
     
     int MIN_CONTOUR_WIDTH = 0;
-    int MAX_CONTOUR_WIDTH = 1000;
+    int MAX_CONTOUR_WIDTH = 1000000;
     int MIN_CONTOUR_HEIGHT = 0;
-    int MAX_CONTOUR_HEIGHT = 1000;
-    int MIN_CONTOUR_AREA = 50;
-    int MIN_CONTOUR_PERIMETER = 50;
+    int MAX_CONTOUR_HEIGHT = 1000000;
+    int MIN_CONTOUR_AREA = 0;
+    int MIN_CONTOUR_PERIMETER = 0;
     int MIN_SOLIDITY = 0;
-    int MAX_SOLIDITY = 100;
+    int MAX_SOLIDITY = 1000000;
     int MIN_VERTEX_COUNT = 0;
     int MAX_VERTEX_COUNT = 1000000;
-    int MIN_RATIO = 0;
-    int MAX_RATIO = 1000;
-    
+    double MIN_RATIO = 0.0;
+    double MAX_RATIO = 1000000.0;
+
     // Write only file storage system for outputs.xml file, where matrices containing images will be stored
 //    FileStorage fileStorage("outputs.xml", FileStorage::WRITE);
     
@@ -247,10 +237,10 @@ int main() {
         //Finds the contours on the contour image
         findContours(contourImg, inputContours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
         
-        outputContours.clear();
-        
-        for (vector<Point> contour: inputContours) {
-            Rect bb = boundingRect(contour);
+	outputContours.clear();
+
+	for (vector<Point> contour: inputContours) {
+	    Rect bb = boundingRect(contour);
             if (bb.width > MIN_CONTOUR_WIDTH && bb.width < MAX_CONTOUR_WIDTH) {
                 if (bb.height > MIN_CONTOUR_HEIGHT && bb.height < MAX_CONTOUR_HEIGHT) {
                     double area = contourArea(contour);
@@ -259,7 +249,7 @@ int main() {
                             convexHull(Mat(contour, true), hull);
                             double solid = 100 * area / contourArea(hull);
                             if (solid > MIN_SOLIDITY && solid < MAX_SOLIDITY) {
-                                if (contour.size() > MIN_VERTEX_COUNT && contour.size() < MAX_VERTEX_COUNT)	{
+                                if (contour.size() > MIN_VERTEX_COUNT && contour.size() < MAX_VERTEX_COUNT) {
                                 double ratio = bb.width / bb.height;
                                     if (ratio > MIN_RATIO && ratio < MAX_RATIO) {
                                         outputContours.push_back(contour);
@@ -271,34 +261,36 @@ int main() {
                 }
             }
         }
-        
-        for (int outputContourIndex = 0; outputContourIndex < outputContours.size(); outputContourIndex++) {
-            drawContours(contourImg, outputContours, outputContourIndex, CV_RGB(255, 255, 255), 2, 8, hierarchy, 0, Point() );
-        }
-        
+
+
         // Variables used to identify largest contours
         int largestArea = 0;
         int secondLargestArea = 0;
-        int largestContourIndex = 0;
-        int secondLargestContourIndex = 0;
+        int largestContourIndex = -1;
+        int secondLargestContourIndex = -1;
         
         // Rectangles that will be wrapped around the pieces of reflective tape
         Rect largestTapeRect;
         Rect secondLargestTapeRect;
-        
+	
         // Finds largest contour; makes largestTapeRect only wrap around the largest contour (target)
         for (int contourIndex = 0; contourIndex < outputContours.size(); contourIndex++) {
             double a = contourArea(outputContours[contourIndex], false);
-            if (a > largestArea){
+            if (a > largestArea) {
                 largestArea = a;
                 largestContourIndex = contourIndex;
                 largestTapeRect = boundingRect( Mat(outputContours[contourIndex]) );
-            } else if (a < largestArea && a > secondLargestArea) {
-                secondLargestArea = a;
-                secondLargestContourIndex = contourIndex;
-                secondLargestTapeRect = boundingRect( Mat(outputContours[contourIndex]) );
             }
         }
+	
+	for (int contourIndex = 0; contourIndex < outputContours.size(); contourIndex++) {
+	    double a = contourArea(outputContours[contourIndex], false);
+	    if (a < largestArea && a > secondLargestArea) {
+		secondLargestArea = a;
+		secondLargestContourIndex = contourIndex;
+		secondLargestTapeRect = boundingRect( Mat(outputContours[contourIndex]) );
+	    }
+	}
         
         // Displays white rectangle around largest contour (target)
         rectangle(outputImg, largestTapeRect.tl(), largestTapeRect.br(), CV_RGB(255, 255, 255), 2, 8, 0);
