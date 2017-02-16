@@ -118,6 +118,7 @@ void serialize() {
             unsigned short frameNum = htons((unsigned short) frameIndex);
             unsigned short targetX = htons((unsigned short)bigTargetX);
             unsigned short targetY = htons((unsigned short)bigTargetY);
+	    unsigned short targetWidth = htons((short)bigTargetWidth);
             unsigned short targetHeight = htons((short)bigTargetHeight);
             unsigned short width = htons((short) frameWidth);
             unsigned short height = htons((short) frameHeight);
@@ -199,8 +200,6 @@ int main() {
     int MAX_SOLIDITY = 1000000;
     int MIN_VERTEX_COUNT = 0;
     int MAX_VERTEX_COUNT = 1000000;
-    double MIN_RATIO = 0.0;
-    double MAX_RATIO = 1000000.0;
 
     // Write only file storage system for outputs.xml file, where matrices containing images will be stored
 //    FileStorage fileStorage("outputs.xml", FileStorage::WRITE);
@@ -250,10 +249,7 @@ int main() {
                             double solid = 100 * area / contourArea(hull);
                             if (solid > MIN_SOLIDITY && solid < MAX_SOLIDITY) {
                                 if (contour.size() > MIN_VERTEX_COUNT && contour.size() < MAX_VERTEX_COUNT) {
-                                double ratio = bb.width / bb.height;
-                                    if (ratio > MIN_RATIO && ratio < MAX_RATIO) {
-                                        outputContours.push_back(contour);
-                                    }
+				    outputContours.push_back(contour);
                                 }
                             }
                         }

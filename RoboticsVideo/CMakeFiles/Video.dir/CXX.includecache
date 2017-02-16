@@ -33,6 +33,8 @@ unistd.h
 -
 netinet/in.h
 -
+signal.h
+-
 
 /usr/local/include/opencv/cxcore.h
 opencv2/core/core_c.h
