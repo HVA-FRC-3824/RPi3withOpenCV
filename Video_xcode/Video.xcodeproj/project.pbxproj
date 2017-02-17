@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0B78C6E51E2DA9BA000D7062 /* Video.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B78C6E41E2DA9BA000D7062 /* Video.cpp */; };
+		E13314041E5297F2004D3C57 /* cmdProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E13314011E5297F2004D3C57 /* cmdProcessor.cpp */; };
+		E13314051E5297F2004D3C57 /* Video.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E13314031E5297F2004D3C57 /* Video.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +24,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0B78C6E41E2DA9BA000D7062 /* Video.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Video.cpp; sourceTree = SOURCE_ROOT; };
 		0BADD9881E2DA15B00F0B724 /* Video */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Video; sourceTree = BUILT_PRODUCTS_DIR; };
+		E13314011E5297F2004D3C57 /* cmdProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cmdProcessor.cpp; path = ../RoboticsVideo/cmdProcessor.cpp; sourceTree = SOURCE_ROOT; };
+		E13314021E5297F2004D3C57 /* cmdProcessor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = cmdProcessor.hpp; path = ../RoboticsVideo/cmdProcessor.hpp; sourceTree = SOURCE_ROOT; };
+		E13314031E5297F2004D3C57 /* Video.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Video.cpp; path = ../RoboticsVideo/Video.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +60,9 @@
 		0BADD98A1E2DA15B00F0B724 /* Video */ = {
 			isa = PBXGroup;
 			children = (
-				0B78C6E41E2DA9BA000D7062 /* Video.cpp */,
+				E13314011E5297F2004D3C57 /* cmdProcessor.cpp */,
+				E13314021E5297F2004D3C57 /* cmdProcessor.hpp */,
+				E13314031E5297F2004D3C57 /* Video.cpp */,
 			);
 			path = Video;
 			sourceTree = "<group>";
@@ -119,7 +124,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B78C6E51E2DA9BA000D7062 /* Video.cpp in Sources */,
+				E13314041E5297F2004D3C57 /* cmdProcessor.cpp in Sources */,
+				E13314051E5297F2004D3C57 /* Video.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <signal.h>
+#include "cmdProcessor.hpp"
 
 using namespace cv;
 using namespace std;
@@ -139,6 +140,11 @@ int main() {
     char headless;
     char *pDisplay;
 
+    cmdProcessor * cmdServer;
+    
+    cmdServer = cmdProcessor::getInstance();
+    cmdServer->start();
+    
     // Creates an object that can capture video from web cam
     cout << "Creating capture stream\n";
     VideoCapture stream1(0);
